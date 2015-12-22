@@ -7,13 +7,18 @@
 #include <QSpinBox>
 #include <QCheckBox>
 
+#include <animation.h>
+
 class AnimationParameters : public QWidget
 {
     Q_OBJECT
 public:
+    Animation* animation;
+
     explicit AnimationParameters(QWidget *parent = 0);
 
     void clearForm();
+    void updateForm();
 
 private:
     QFormLayout* form;
@@ -23,8 +28,11 @@ private:
     QCheckBox* is_repeated;
 
 signals:
+    void animationEdited();
 
 public slots:
+    void changeAnimationParams();
+
 };
 
 #endif // ANIMATIONPARAMETRER_H

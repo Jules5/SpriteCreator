@@ -1,18 +1,45 @@
 #include "animationsexplorer.h"
 
-AnimationsExplorer::AnimationsExplorer(QWidget *parent) : QListWidget(parent)
+AnimationsExplorer::AnimationsExplorer(vector<Animation>* anims, QWidget *parent) : QListWidget(parent)
 {
     setContentsMargins(10,5,10,5);
 
-    addItem(new QListWidgetItem("Animation 1"));
-    addItem(new QListWidgetItem("Animation 2"));
-    addItem(new QListWidgetItem("Animation 3"));
-    addItem(new QListWidgetItem("Animation 4"));
+    animations = anims;
+
+    for(vector<Animation>::iterator it=animations->begin(); it!=animations->end(); ++it)
+        addItem(new QListWidgetItem(it->name));
 }
 
 
 
 void AnimationsExplorer::reset()
 {
+    if(count() > 0)
+        clear();
+}
 
+
+void AnimationsExplorer::updateSelectedItem()
+{
+    QListWidgetItem* item = selectedItems().first();
+    item->setText(animations->at(indexFromItem(item).row()).name);
+}
+
+
+
+void AnimationsExplorer::animationInserted()
+{
+    addItem(new QListWidgetItem(animations->back().name));
+    item(count()-1)->setSelected(true);
+}
+
+
+
+int AnimationsExplorer::getSelectedIndex()
+{
+    if(count() <= 0)
+        return 0;
+
+    QListWidgetItem* item = selectedItems().first();
+    return indexFromItem(item).row();
 }

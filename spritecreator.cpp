@@ -14,13 +14,12 @@ SpriteCreator::SpriteCreator(QWidget *parent) :
 
     // Window attributes & properties
     filename = "";
+    animations.clear();
     showMaximized();
 
     // Connections
     connect(sprite_picker,SIGNAL(spriteSheetLoaded()),this,SLOT(spriteSheetLoaded()));
-
-    // Debug
-//    spriteSheetLoaded();
+    connect(anim_param,SIGNAL(animationEdited()),this,SLOT(animationEdited()));
 }
 
 
@@ -88,10 +87,18 @@ void SpriteCreator::initLayouts()
 void SpriteCreator::initWidgets()
 {
     // Animations explorer
-    anim_explorer = new AnimationsExplorer(this);
+    anim_explorer = new AnimationsExplorer(&animations, this);
     anim_explorer->setDisabled(true);
     anim_explorer->setMaximumWidth(200);
     left_layout->addWidget(anim_explorer);
+    connect(anim_explorer,SIGNAL(itemSelectionChanged()),this,SLOT(changeAnimationSelection()));
+
+    // Button add animation
+    add_anim_button = new QPushButton("Add animation",this);
+    add_anim_button->setDisabled(true);
+    left_layout->addWidget(add_anim_button);
+    connect(add_anim_button,SIGNAL(clicked(bool)),this,SLOT(addAnimation()));
+
 
     // Animation parametrer
     anim_param = new AnimationParameters(this);
@@ -107,7 +114,7 @@ void SpriteCreator::initWidgets()
     left_layout->addWidget(anim_player);
 
     // Sprite Picker
-    sprite_picker = new SpritePicker(this);
+    sprite_picker = new FramePicker(this);
     right_layout->addWidget(sprite_picker);
 
     // Frames Explorer
@@ -140,12 +147,17 @@ void SpriteCreator::newPackage()
             return;
     }
 
+    disconnect(anim_explorer,SIGNAL(itemSelectionChanged()),this,NULL);
+
     sprite_picker->reset();
     anim_explorer->reset();
     anim_player->reset();
     frames_explorer->reset();
 
+    connect(anim_explorer,SIGNAL(itemSelectionChanged()),this,SLOT(changeAnimationSelection()));
+
     anim_explorer->setEnabled(false);
+    add_anim_button->setEnabled(false);
     anim_param->setEnabled(false);
     anim_param->clearForm();
     anim_player->setEnabled(false);
@@ -156,11 +168,46 @@ void SpriteCreator::newPackage()
 
 void SpriteCreator::spriteSheetLoaded()
 {
+    // On active les widgets désactivés
     anim_explorer->setEnabled(true);
+    add_anim_button->setEnabled(true);
     anim_param->setEnabled(true);
     anim_player->setEnabled(true);
     frames_explorer->setEnabled(true);
 
     action_save->setEnabled(true);
     action_save_as->setEnabled(true);
+
+    // On crée une animation vide et on met à jour les widgets
+    animations.push_back(Animation());
+    anim_explorer->animationInserted();
+    anim_param->animation = &(animations.back());
+    anim_param->updateForm();
+}
+
+
+
+void SpriteCreator::addAnimation()
+{
+    // Ajout de l'animation
+    animations.push_back(Animation());
+
+    // Répercussion dans les widgets
+    anim_explorer->animationInserted();
+    anim_param->animation = &(animations.back());
+    anim_param->updateForm();
+}
+
+
+void SpriteCreator::animationEdited()
+{
+    anim_explorer->updateSelectedItem();
+}
+
+
+void SpriteCreator::changeAnimationSelection()
+{
+    Animation* current = &(animations.at(anim_explorer->getSelectedIndex()));
+    anim_param->animation = current;
+    anim_param->updateForm();
 }

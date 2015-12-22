@@ -1,32 +1,31 @@
 /* Principal */
 QWindow {background:#282828}
 QWidget {background:#383838}
+QWidget * {color:#ddd}
 
 /* Barre de menu */
-QMenuBar::item {color:#ddd}
 QMenuBar::item::selected {background:#308CC6;}
-QMenu {color:#ddd}
 QMenu::item::enabled::selected {background:#308CC6;}
 QMenu::item::disabled {color:#000}
 
+/* Boites de dialogue */
+/*QFileDialog, QFileDialog * {background:auto; color:auto}
+QFileDialog QPushButton {background:auto; color:auto;}*/
+
 /* Buttons */
 QPushButton {color:#ddd; background:#484848}
+QPushButton::disabled {color:#383838}
 
 /* AnimationExplorer */
 AnimationsExplorer::disabled {color:#000;}
-AnimationsExplorer::enabled {color:#ddd;}
 AnimationsExplorer::item {height:20px; line-height:20px;}
 
 /* AnimationParameters */
-AnimationParameters QLabel,
-AnimationParameters QLineEdit,
-AnimationParameters QSpinBox,
-AnimationParameters QCheckBox {color:#ddd}
 AnimationParameters QLabel::disabled,
 AnimationParameters QLineEdit::disabled,
 AnimationParameters QSpinBox::disabled,
 AnimationParameters QCheckBox::disabled {color:#000}
 
 /* SpritePicker*/
-SpritePicker {background:#888888}
-SpritePicker > QPushButton {margin:20px; padding:4px 6px}
+FramePicker {background:#888888}
+FramePicker > QPushButton {margin:20px; padding:4px 6px}
