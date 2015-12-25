@@ -17,6 +17,8 @@ public:
     bool repeated;
 
     Animation();
+
+    friend ostream& operator << (ostream& os, const Animation&);
 };
 
 #endif // ANIMATION_H

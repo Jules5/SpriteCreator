@@ -13,7 +13,7 @@ QMenu::item::disabled {color:#000}
 QFileDialog QPushButton {background:auto; color:auto;}*/
 
 /* Buttons */
-QPushButton {color:#ddd; background:#484848}
+QPushButton {color:#eee; background:#484848}
 QPushButton::disabled {color:#383838}
 
 /* AnimationExplorer */
@@ -27,5 +27,5 @@ AnimationParameters QSpinBox::disabled,
 AnimationParameters QCheckBox::disabled {color:#000}
 
 /* SpritePicker*/
-FramePicker {background:#888888}
+FramePicker {background:#A8A8A8}
 FramePicker > QPushButton {margin:20px; padding:4px 6px}

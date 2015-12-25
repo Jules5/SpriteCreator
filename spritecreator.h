@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QWidget>
 #include <QMenuBar>
+#include <QMenu>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QBoxLayout>
@@ -11,6 +12,7 @@
 
 #include <vector>
 
+#include <spritepackage.h>
 #include <animation.h>
 #include <animationsexplorer.h>
 #include <animationparameters.h>
@@ -33,12 +35,13 @@ private:
     QMenuBar* menubar;
     QAction* action_save;
     QAction* action_save_as;
+    QMenu* menu_frame;
 
     AnimationsExplorer* anim_explorer;
     QPushButton* add_anim_button;
     AnimationParameters* anim_param;
     AnimationPlayer* anim_player;
-    FramePicker* sprite_picker;
+    FramePicker* frames_picker;
     FramesExplorer* frames_explorer;
 
     QHBoxLayout* main_layout;
@@ -51,14 +54,20 @@ private:
 
     bool savePackage();
 
+    void update();
+
 signals:
 
 public slots:
     void newPackage();
+    void save();
+    void saveAs();
     void spriteSheetLoaded();
     void addAnimation();
     void animationEdited();
     void changeAnimationSelection();
+    void frameUpdated();
+    void duplicateFrame();
 
 };
 
