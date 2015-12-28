@@ -20,22 +20,24 @@ class FramePicker : public QGraphicsView
 {
     Q_OBJECT
 public:
-    explicit FramePicker(QWidget *parent);
+    explicit FramePicker(QPixmap*, QWidget *parent);
 
+    QPushButton* button_load;
+
+    void setEnabled(bool = true);
     void reset();
     void update();
-    void loadImage(const QString&);
+    void setImage(QPixmap*);
     void setFrames(vector<Frame>* = NULL);
     void drawFrame(Frame*);
     void duplicateFrame();
     void deleteFrame(Frame*);
-    QPixmap* getPixmapReference();
 
 private:
-    QString filename;
-    QPushButton* button_load;
+    bool enabled;
+
     QGraphicsScene* scene;
-    QPixmap image;
+    QPixmap* image;
 
     vector<Frame>* frames;
     Frame* selected_frame;
@@ -59,13 +61,10 @@ private:
     void keyPressEvent(QKeyEvent *event);
 
 
-
 signals:
-    void spriteSheetLoaded();
     void frameUpdated();
 
 public slots:
-    void loadSpriteSheet();
     void sceneResized();
 
 };

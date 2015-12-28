@@ -17,7 +17,7 @@ class AnimationPlayer : public QGraphicsView
 {
     Q_OBJECT
 public:
-    explicit AnimationPlayer(QWidget *parent = 0);
+    explicit AnimationPlayer(QPixmap*, QWidget *parent = 0);
 
     void reset();
     void setAnimation(Animation* = NULL);

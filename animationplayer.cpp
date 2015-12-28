@@ -1,8 +1,9 @@
 #include "animationplayer.h"
 
-AnimationPlayer::AnimationPlayer(QWidget *parent) : QGraphicsView(parent)
+AnimationPlayer::AnimationPlayer(QPixmap* img, QWidget *parent) : QGraphicsView(parent)
 {
     animation = NULL;
+    image = img;
     current_frame = 0;
     is_playing = false;
 

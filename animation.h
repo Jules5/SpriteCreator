@@ -3,6 +3,8 @@
 
 #include <QString>
 
+#include <iostream>
+#include <fstream>
 #include <vector>
 #include <frame.h>
 
@@ -17,8 +19,9 @@ public:
     bool repeated;
 
     Animation();
+    Animation(ifstream&);
 
-    friend ostream& operator << (ostream& os, const Animation&);
+    friend ostream& operator << (ostream& os, Animation&);
 };
 
 #endif // ANIMATION_H

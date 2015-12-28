@@ -30,11 +30,13 @@ public:
 
 private:
     QString filename;
-    vector<Animation> animations;
+    SpritePackage package;
+    Animation* current_anim;
 
     QMenuBar* menubar;
     QAction* action_save;
     QAction* action_save_as;
+    QMenu* menu_anim;
     QMenu* menu_frame;
 
     AnimationsExplorer* anim_explorer;
@@ -52,22 +54,21 @@ private:
     void initLayouts();
     void initWidgets();
 
-    bool savePackage();
-
-    void update();
+    void updateAll();
 
 signals:
 
 public slots:
     void newPackage();
+    void loadPackage();
+    void loadSpriteSheet();
     void save();
     void saveAs();
-    void spriteSheetLoaded();
     void addAnimation();
-    void animationEdited();
-    void changeAnimationSelection();
-    void frameUpdated();
     void duplicateFrame();
+    void animationUpdated();
+    void animationSelectionUpdated();
+    void frameUpdated();
 
 };
 

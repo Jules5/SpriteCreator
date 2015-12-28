@@ -18,10 +18,12 @@ class SpritePackage
 public:
     SpritePackage();
 
-    QPixmap* image;
-    vector<Animation>* animations;
+    QPixmap image;
+    vector<Animation> animations;
 
     bool save(QString filename);
+    bool load(QString filename);
+    void reset();
 
 };
 

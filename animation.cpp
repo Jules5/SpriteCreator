@@ -8,9 +8,36 @@ Animation::Animation()
 }
 
 
-ostream& operator << (ostream& os, const Animation& anim)
+Animation::Animation(ifstream& file)
 {
-    os << anim.name.toStdString();
-    os << "caca";
+    name = "";
+    unsigned int nb_c;
+    file >> nb_c;
+
+    for(unsigned int i=0; i<nb_c; ++i)
+    {
+        char c;
+        file >> c;
+        name.append(c);
+    }
+
+    file >> speed;
+    file >> repeated;
+
+    unsigned int nb_frames;
+    file >> nb_frames;
+
+    for(unsigned int i=0; i<nb_frames; ++i)
+        frames.push_back(Frame(file));
+}
+
+
+ostream& operator << (ostream& os, Animation& anim)
+{
+    os << anim.name.size() << " " << anim.name.toStdString().c_str() << " " << anim.speed << " " << anim.repeated << " " << anim.frames.size() << "\n";
+
+    for(vector<Frame>::iterator it=anim.frames.begin(); it!=anim.frames.end(); ++it)
+        os << *it;
+
     return os;
 }

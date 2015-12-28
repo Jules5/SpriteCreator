@@ -13,14 +13,15 @@ class AnimationParameters : public QWidget
 {
     Q_OBJECT
 public:
-    Animation* animation;
-
     explicit AnimationParameters(QWidget *parent = 0);
 
-    void clearForm();
-    void updateForm();
+    void update();
+    void reset();
+    void setAnimation(Animation*);
 
 private:
+    Animation* animation;
+
     QFormLayout* form;
 
     QLineEdit* name;
@@ -28,10 +29,10 @@ private:
     QCheckBox* is_repeated;
 
 signals:
-    void animationEdited();
+    void animationUpdated();
 
 public slots:
-    void changeAnimationParams();
+    void updateAnimation();
 
 };
 

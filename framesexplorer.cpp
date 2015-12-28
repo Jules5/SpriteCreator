@@ -1,6 +1,6 @@
 #include "framesexplorer.h"
 
-FramesExplorer::FramesExplorer(QWidget *parent) : QListWidget(parent)
+FramesExplorer::FramesExplorer(QPixmap* img, QWidget *parent) : QListWidget(parent)
 {
     setFixedHeight(130);
 
@@ -8,7 +8,7 @@ FramesExplorer::FramesExplorer(QWidget *parent) : QListWidget(parent)
     setIconSize(QSize(100,100));
 
     frames = NULL;
-    image = NULL;
+    image = img;
 }
 
 
@@ -28,7 +28,8 @@ void FramesExplorer::setImage(QPixmap * img)
 
 void FramesExplorer::reset()
 {
-
+    if(count() > 0)
+        clear();
 }
 
 

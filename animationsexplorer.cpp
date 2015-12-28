@@ -19,18 +19,39 @@ void AnimationsExplorer::reset()
 }
 
 
-void AnimationsExplorer::updateSelectedItem()
+void AnimationsExplorer::update()
 {
-    QListWidgetItem* item = selectedItems().first();
-    item->setText(animations->at(indexFromItem(item).row()).name);
+//    int cpt = count();
+
+//    clear();
+
+//    for(vector<Animation>::iterator it=animations->begin(); it!=animations->end(); ++it)
+//        addItem(new QListWidgetItem(it->name));
+
+//    // Gestion selection
+//    if(cpt < count())
+//            item(count()-1)->setSelected(true);
+//    else if(selectedItems().count() <= 0 && count() > 0)
+//        item(0)->setSelected(true);
+
+    if(selectedItems().count() <= 0 && count() > 0)
+        item(0)->setSelected(true);
+
+    if(count() < (int)animations->size())
+    {
+        for(unsigned int i=count(); i<animations->size(); ++i)
+            addItem(new QListWidgetItem(animations->at(i).name));
+        item(count()-1)->setSelected(true);
+    }
 }
 
 
 
-void AnimationsExplorer::animationInserted()
+void AnimationsExplorer::updateSelectedItem()
 {
-    addItem(new QListWidgetItem(animations->back().name));
-    item(count()-1)->setSelected(true);
+    QListWidgetItem* item = selectedItems().at(0);
+    int index = indexFromItem(item).row();
+    item->setText(animations->at(index).name);
 }
 
 

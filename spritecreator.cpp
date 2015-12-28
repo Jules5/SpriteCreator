@@ -14,14 +14,14 @@ SpriteCreator::SpriteCreator(QWidget *parent) :
 
     // Window attributes & properties
     filename = "";
-    animations.clear();
+    current_anim = NULL;
     showMaximized();
 
-    // Connections
-    connect(anim_explorer,SIGNAL(itemSelectionChanged()),this,SLOT(changeAnimationSelection()));
+    // Connexions
+    connect(anim_explorer,SIGNAL(itemSelectionChanged()),this,SLOT(animationSelectionUpdated()));
     connect(add_anim_button,SIGNAL(clicked(bool)),this,SLOT(addAnimation()));
-    connect(anim_param,SIGNAL(animationEdited()),this,SLOT(animationEdited()));
-    connect(frames_picker,SIGNAL(spriteSheetLoaded()),this,SLOT(spriteSheetLoaded()));
+    connect(anim_param,SIGNAL(animationUpdated()),this,SLOT(animationUpdated()));
+    connect(frames_picker->button_load,SIGNAL(clicked(bool)),this,SLOT(loadSpriteSheet()));
     connect(frames_picker,SIGNAL(frameUpdated()),this,SLOT(frameUpdated()));
 }
 
@@ -43,7 +43,7 @@ void SpriteCreator::initMenuBar()
 
     action = new QAction(tr("Open package..."),menu);
     menu->addAction(action);
-    connect(action,SIGNAL(triggered()),this,SLOT(openPackage()));
+    connect(action,SIGNAL(triggered()),this,SLOT(loadPackage()));
 
     menu->addSeparator();
 
@@ -65,6 +65,21 @@ void SpriteCreator::initMenuBar()
 
     menubar->addMenu(menu);
 
+    // Animation
+    menu_anim = new QMenu(tr("Animation"),menubar);
+
+    action = new QAction(tr("Add"),menu_anim);
+    menu_anim->addAction(action);
+    connect(action,SIGNAL(triggered()),this,SLOT(addAnimation()));
+
+    action = new QAction(tr("Delete"),menu_anim);
+    action->setShortcut(QKeySequence::Delete);
+    menu_anim->addAction(action);
+    connect(action,SIGNAL(triggered()),this,SLOT(deleteFrame()));
+
+    menubar->addMenu(menu_anim);
+
+    // Frame
     menu_frame = new QMenu(tr("Frame"),menubar);
 
     action = new QAction(tr("Duplicate"),menu_frame);
@@ -79,7 +94,6 @@ void SpriteCreator::initMenuBar()
 
     menubar->addMenu(menu_frame);
 
-    menubar->setMaximumHeight(20);
     menubar->show();
 }
 
@@ -104,7 +118,7 @@ void SpriteCreator::initLayouts()
 void SpriteCreator::initWidgets()
 {
     // Animations explorer
-    anim_explorer = new AnimationsExplorer(&animations, this);
+    anim_explorer = new AnimationsExplorer(&package.animations, this);
     anim_explorer->setDisabled(true);
     anim_explorer->setMaximumWidth(200);
     left_layout->addWidget(anim_explorer);
@@ -122,26 +136,41 @@ void SpriteCreator::initWidgets()
     left_layout->addWidget(anim_param);
 
     // Animation Player
-    anim_player = new AnimationPlayer(this);
+    anim_player = new AnimationPlayer(&package.image,this);
     anim_player->setDisabled(true);
     anim_player->setFixedWidth(200);
     anim_player->setFixedHeight(220);
     left_layout->addWidget(anim_player);
 
     // Sprite Picker
-    frames_picker = new FramePicker(this);
+    frames_picker = new FramePicker(&package.image,this);
     right_layout->addWidget(frames_picker);
 
     // Frames Explorer
-    frames_explorer = new FramesExplorer(this);
+    frames_explorer = new FramesExplorer(&package.image,this);
     frames_explorer->setDisabled(true);
     right_layout->addWidget(frames_explorer);
 }
 
 
-bool SpriteCreator::savePackage()
+
+void SpriteCreator::updateAll()
 {
-    return false;
+    anim_explorer->update();
+
+    Animation* old_current = current_anim;
+    current_anim = &package.animations.at(anim_explorer->getSelectedIndex());
+
+    if(current_anim != old_current)
+    {
+        anim_param->setAnimation(current_anim);
+        anim_param->update();
+    //    anim_player->update();
+        frames_picker->setFrames(&current_anim->frames);
+        frames_picker->update();
+        frames_explorer->setFrames(&current_anim->frames);
+        frames_explorer->update();
+    }
 }
 
 
@@ -154,32 +183,72 @@ void SpriteCreator::newPackage()
     switch(rep)
     {
         case QMessageBox::Yes :
-            if(!savePackage())
-                return;
+                save();
             break;
 
         case QMessageBox::Cancel :
             return;
     }
 
-    disconnect(anim_explorer,SIGNAL(itemSelectionChanged()),this,NULL);
-
     frames_picker->reset();
     anim_explorer->reset();
+    anim_param->reset();
     anim_player->reset();
-    frames_explorer->reset();
+    frames_explorer->clear();
+    package.reset();
 
-    connect(anim_explorer,SIGNAL(itemSelectionChanged()),this,SLOT(changeAnimationSelection()));
-
-    animations.clear();
+    package.animations.clear();
+    current_anim = NULL;
 
     anim_explorer->setEnabled(false);
     add_anim_button->setEnabled(false);
     anim_param->setEnabled(false);
-    anim_param->clearForm();
     anim_player->setEnabled(false);
     frames_explorer->setEnabled(false);
 }
+
+
+
+void SpriteCreator::loadPackage()
+{
+    QString old_filename = filename;
+    filename = QFileDialog::getOpenFileName(this, tr("Open Package"), "", tr("Sprite Package (*.spr)"));
+    if(filename.size() <= 0)
+    {
+        filename = old_filename;
+        return;
+    }
+
+    if(package.load(filename))
+        update();
+}
+
+
+
+void SpriteCreator::loadSpriteSheet()
+{
+    // Chargement de l'image
+    QString image_file = QFileDialog::getOpenFileName(this, tr("Open Package"), "", tr("Image File (*.png *.jpg *.jpeg *tga *bmp)"));
+    if(image_file.size() <= 0)
+        return;
+
+    package.image = QPixmap::fromImage(QImage(image_file));
+
+    // On active les widgets désactivés
+    anim_explorer->setEnabled(true);
+    add_anim_button->setEnabled(true);
+    anim_param->setEnabled(true);
+    anim_player->setEnabled(true);
+    frames_picker->setEnabled(true);
+    frames_explorer->setEnabled(true);
+
+    action_save->setEnabled(true);
+    action_save_as->setEnabled(true);
+
+    // Ajout animation vide + Mise à jour
+    addAnimation();
+}
+
 
 
 void SpriteCreator::save()
@@ -187,9 +256,6 @@ void SpriteCreator::save()
     if(filename == "")
         return saveAs();
 
-    SpritePackage package;
-    package.animations = &animations;
-    package.image = frames_picker->getPixmapReference();
     if(!package.save(filename))
         QMessageBox::information(this,tr("Error"),tr("Impossible to write in the specified file."),QMessageBox::Ok);
 }
@@ -198,70 +264,40 @@ void SpriteCreator::save()
 void SpriteCreator::saveAs()
 {
     filename = QFileDialog::getSaveFileName(this, tr("Save Package"), "", tr("Sprite Package (*.spr)"));
+
+    if(filename.size() <= 0)
+        return;
+
     save();
 }
 
 
 
-void SpriteCreator::spriteSheetLoaded()
-{
-    // On active les widgets désactivés
-    anim_explorer->setEnabled(true);
-    add_anim_button->setEnabled(true);
-    anim_param->setEnabled(true);
-    anim_player->setEnabled(true);
-    frames_explorer->setEnabled(true);
-
-    action_save->setEnabled(true);
-    action_save_as->setEnabled(true);
-
-    // On crée une animation vide et on met à jour les widgets
-    animations.push_back(Animation());
-    frames_picker->setFrames(&(animations.back().frames));
-    anim_explorer->animationInserted();
-    anim_param->animation = &(animations.back());
-    anim_param->updateForm();
-    anim_player->setAnimation(&animations.back());
-    anim_player->setPixmap(frames_picker->getPixmapReference());
-    frames_explorer->setImage(frames_picker->getPixmapReference());
-    frames_explorer->setFrames(&(animations.back().frames));
-    frames_explorer->update();
-}
-
 
 
 void SpriteCreator::addAnimation()
 {
-    // Ajout de l'animation
-    animations.push_back(Animation());
-
-    // Répercussion dans les widgets
-    anim_explorer->animationInserted();
+    package.animations.push_back(Animation());
+    updateAll();
 }
 
 
-void SpriteCreator::animationEdited()
+void SpriteCreator::animationUpdated()
 {
     anim_explorer->updateSelectedItem();
 }
 
 
-void SpriteCreator::changeAnimationSelection()
+void SpriteCreator::animationSelectionUpdated()
 {
-    Animation* current = &(animations.at(anim_explorer->getSelectedIndex()));
-    anim_param->animation = current;
-    anim_param->updateForm();
-    frames_picker->setFrames(&(current->frames));
-    frames_picker->update();
-    frames_explorer->setFrames(&(current->frames));
-    frames_explorer->update();
+    updateAll();
 }
 
 
 void SpriteCreator::frameUpdated()
 {
+    frames_picker->update();
     frames_explorer->update();
-    anim_player->play();
 }
 
 

@@ -1,10 +1,11 @@
 #include "framepicker.h"
 
-FramePicker::FramePicker(QWidget *parent) : QGraphicsView(parent)
+FramePicker::FramePicker(QPixmap* img, QWidget *parent) : QGraphicsView(parent)
 {
+    enabled = false;
+
     setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-    filename = "";
     is_selecting = false;
     is_dragging = false;
 
@@ -12,8 +13,8 @@ FramePicker::FramePicker(QWidget *parent) : QGraphicsView(parent)
     selected_frame = NULL;
 
     button_load = new QPushButton("Load a spritesheet...",this);
-    connect(button_load,SIGNAL(clicked(bool)),this,SLOT(loadSpriteSheet()));
 
+    image = img;
     scene = new QGraphicsScene(this);
     setScene(scene);
 
@@ -21,24 +22,30 @@ FramePicker::FramePicker(QWidget *parent) : QGraphicsView(parent)
     pen_selected = QColor(73,255,20);
     brush_selected = QColor(73,255,20);
 
-    connect(scene,SIGNAL(changed(QList<QRectF>)),this,SLOT(sceneResized()));
-
     update();
 }
 
 
 void FramePicker::reset()
 {
-    filename = "";
     scene->clear();
-    button_load->show();
+    setEnabled(false);
+    update();
 }
 
 
 void FramePicker::update()
 {
     scene->clear();
-    scene->addPixmap(image);
+
+    if(image == NULL || !enabled)
+    {
+        button_load->show();
+        return;
+    }
+
+    button_load->hide();
+    scene->addPixmap(*image);
 
     if(frames != NULL)
     {
@@ -48,11 +55,16 @@ void FramePicker::update()
         drawFrame(selected_frame);
     }
 
-
-
     if(is_selecting)
         scene->addRect(getSelection(),QPen(),brush);
 }
+
+
+void FramePicker::setEnabled(bool b)
+{
+    enabled = b;
+}
+
 
 
 void FramePicker::drawFrame(Frame* frame)
@@ -89,28 +101,6 @@ void FramePicker::drawFrame(Frame* frame)
 }
 
 
-void FramePicker::loadSpriteSheet()
-{
-    QString old_filename = filename;
-    filename = QFileDialog::getOpenFileName(this, tr("Open Package"), "", tr("Image File (*.png *.jpg *.jpeg *tga *bmp)"));
-    if(filename.size() <= 0)
-    {
-        filename = old_filename;
-        return;
-    }
-
-    image = QPixmap::fromImage(QImage(filename));
-
-    scene->clear();
-    scene->addPixmap(image);
-
-    button_load->hide();
-
-    emit spriteSheetLoaded(); // Envoi signal au parent
-}
-
-
-
 void FramePicker::sceneResized()
 {
     QRectF rect = scene->itemsBoundingRect();
@@ -126,10 +116,11 @@ void FramePicker::setFrames(vector<Frame>* f)
 
 
 
-QPixmap* FramePicker::getPixmapReference()
+void FramePicker::setImage(QPixmap* img)
 {
-    return &image;
+    image = img;
 }
+
 
 
 QRect FramePicker::getSelection()
@@ -225,7 +216,7 @@ void FramePicker::mousePressEvent(QMouseEvent *event)
     int rx = event->pos().x()+horizontalScrollBar()->value();
     int ry = event->pos().y()+verticalScrollBar()->value();
 
-    if(filename != "" && event->button() == Qt::LeftButton)
+    if(image != NULL && event->button() == Qt::LeftButton)
     {
         bool ok = checkClickCollision(rx,ry,selected_frame);
 
@@ -310,7 +301,7 @@ void FramePicker::mouseReleaseEvent(QMouseEvent *event)
         {
             is_dragging = false;
         }
-        update();
+
         emit frameUpdated();
     }
 }
@@ -336,34 +327,24 @@ void FramePicker::keyPressEvent(QKeyEvent *event)
 
         case Qt::Key_Up :
             if(selected_frame != NULL)
-            {
                 selected_frame->move(0,-1);
-                update();
-            }
             break;
 
         case Qt::Key_Down :
             if(selected_frame != NULL)
-            {
                 selected_frame->move(0,1);
-                update();
-            }
             break;
 
         case Qt::Key_Left :
             if(selected_frame != NULL)
-            {
                 selected_frame->move(-1,0);
-                update();
-            }
             break;
 
         case Qt::Key_Right :
             if(selected_frame != NULL)
-            {
                 selected_frame->move(1,0);
-                update();
-            }
             break;
     }
+
+    emit frameUpdated();
 }

@@ -4,6 +4,7 @@
 #include <QRect>
 
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -19,6 +20,7 @@ public:
     Frame();
     Frame(int,int,int,int);
     Frame(const Frame&);
+    Frame(ifstream&);
 
     QRect getQRect();
 
@@ -41,6 +43,7 @@ public:
     void moveH(int);
     void moveHotpoint(int,int);
 
+    friend ostream& operator << (ostream& os, Frame&);
 };
 
 #endif // FRAME_H

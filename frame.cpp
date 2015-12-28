@@ -2,7 +2,7 @@
 
 Frame::Frame()
 {
-    x = y = w = h;
+    x = y = w = h = 0;
     hotx = hoty = .5;
     min_w = min_h = 18;
 }
@@ -42,6 +42,34 @@ Frame::Frame(const Frame& other)
     hoty = other.hoty;
     min_w = min_h = 18;
 }
+
+
+
+Frame::Frame(ifstream& file)
+{
+    min_w = min_h = 18;
+
+    file >> x;
+    file >> y;
+    file >> w;
+    file >> h;
+
+    int tmp_hx, tmp_hy;
+    file >> tmp_hx;
+    file >> tmp_hy;
+
+    setHX(tmp_hx);
+    setHY(tmp_hy);
+}
+
+
+ostream& operator << (ostream& os, Frame& f)
+{
+    os << f.x << " " << f.y << " " << f.w << " " << f.h << " " << f.getHotX() << " " << f.getHotY() << "\n";
+
+    return os;
+}
+
 
 
 QRect Frame::getQRect()
@@ -116,14 +144,14 @@ void Frame::setH(int py)
 
 void Frame::setHX(int px)
 {
-    hotx = px/w;
+    hotx = (double)px/w;
     check();
 }
 
 
 void Frame::setHY(int py)
 {
-    hoty = py/h;
+    hoty = (double)py/h;
     check();
 }
 
@@ -198,3 +226,6 @@ void Frame::moveHotpoint(int dx, int dy)
     hoty += (double)dy/h;
     check();
 }
+
+
+

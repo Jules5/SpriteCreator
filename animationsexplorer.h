@@ -20,6 +20,7 @@ public:
     explicit AnimationsExplorer(vector<Animation>*, QWidget *parent = 0);
 
     void reset();
+    void update();
     void updateSelectedItem();
 
     int getSelectedIndex();
@@ -30,7 +31,7 @@ private :
 signals:
 
 public slots:
-    void animationInserted();
+//    void animationInserted();
 
 };
 

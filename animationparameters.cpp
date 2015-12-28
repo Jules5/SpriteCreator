@@ -17,25 +17,22 @@ AnimationParameters::AnimationParameters(QWidget *parent) : QWidget(parent)
     setLayout(form);
 
     // Connexions
-    connect(name,SIGNAL(editingFinished()),this,SLOT(changeAnimationParams()));
-    connect(speed,SIGNAL(editingFinished()),this,SLOT(changeAnimationParams()));
-    connect(is_repeated,SIGNAL(toggled(bool)),this,SLOT(changeAnimationParams()));
+    connect(name,SIGNAL(editingFinished()),this,SLOT(updateAnimation()));
+    connect(speed,SIGNAL(editingFinished()),this,SLOT(updateAnimation()));
+    connect(is_repeated,SIGNAL(toggled(bool)),this,SLOT(updateAnimation()));
 }
 
 
 
-void AnimationParameters::clearForm()
-{
-    name->setText("");
-    speed->setValue(0);
-    is_repeated->setChecked(false);
-}
 
 
-void AnimationParameters::updateForm()
+void AnimationParameters::update()
 {
     if(animation == NULL)
+    {
+        reset();
         return;
+    }
 
     name->setText(animation->name);
     speed->setValue(animation->speed);
@@ -43,12 +40,27 @@ void AnimationParameters::updateForm()
 }
 
 
+void AnimationParameters::reset()
+{
+    animation = NULL;
+    name->clear();
+    speed->clear();
+    is_repeated->setChecked(false);
+}
 
-void AnimationParameters::changeAnimationParams()
+
+void AnimationParameters::setAnimation(Animation* a)
+{
+    animation = a;
+}
+
+
+
+void AnimationParameters::updateAnimation()
 {
     animation->name = name->text();
     animation->speed = speed->value();
     animation->repeated = is_repeated->isChecked();
 
-    emit animationEdited();
+    emit animationUpdated();
 }

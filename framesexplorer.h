@@ -15,7 +15,7 @@ class FramesExplorer : public QListWidget
 {
     Q_OBJECT
 public:
-    explicit FramesExplorer(QWidget *parent = 0);
+    explicit FramesExplorer(QPixmap*, QWidget *parent = 0);
 
     void setFrames(vector<Frame>*);
     void setImage(QPixmap*);
