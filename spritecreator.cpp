@@ -156,6 +156,9 @@ void SpriteCreator::initWidgets()
 
 void SpriteCreator::updateAll()
 {
+    if(package.animations.size() <= 0)
+        return;
+
     anim_explorer->update();
 
     Animation* old_current = current_anim;
@@ -179,34 +182,20 @@ void SpriteCreator::updateAll()
 
 bool SpriteCreator::newPackage()
 {
-    int rep = QMessageBox::question(this, tr("New package"), tr("Do you want to save your work before create a new package ?")
-                                    ,QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    int rep = askToSave();
 
     switch(rep)
     {
         case QMessageBox::Yes :
-            save();
+            if(!save())
+                return false;
             break;
 
         case QMessageBox::Cancel :
             return false;
     }
 
-    frames_picker->reset();
-    anim_explorer->reset();
-    anim_param->reset();
-    anim_player->reset();
-    frames_explorer->clear();
-    package.reset();
-
-    package.animations.clear();
-    current_anim = NULL;
-
-    anim_explorer->setEnabled(false);
-    add_anim_button->setEnabled(false);
-    anim_param->setEnabled(false);
-    anim_player->setEnabled(false);
-    frames_explorer->setEnabled(false);
+    setModeInit();
 
     return true;
 }
@@ -227,10 +216,7 @@ void SpriteCreator::loadPackage()
     }
 
     if(package.load(filename))
-    {
         setModeEdition();
-        frames_picker->update();
-    }
 }
 
 
@@ -246,6 +232,43 @@ void SpriteCreator::loadSpriteSheet()
 
     // Toggle edition mode
     setModeEdition();
+}
+
+
+int SpriteCreator::askToSave()
+{
+    return QMessageBox::question(this, tr("New package"), tr("Do you want to save your work before create a new package ?")
+                                    ,QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+}
+
+
+
+void SpriteCreator::setModeInit()
+{
+    // On vide le package
+    package.reset();
+
+    // On efface les informations courantes
+    filename = QString();
+    current_anim = NULL;
+
+    // On reset les widgets
+    frames_picker->reset();
+    frames_explorer->reset();
+    anim_explorer->reset();
+    anim_param->reset();
+    anim_player->reset();
+
+    // On désactive les widgets à désactiver
+    anim_explorer->setEnabled(false);
+    add_anim_button->setEnabled(false);
+    anim_param->setEnabled(false);
+    anim_player->setEnabled(false);
+    frames_picker->setEnabled(false);
+    frames_explorer->setEnabled(false);
+
+    action_save->setEnabled(false);
+    action_save_as->setEnabled(false);
 }
 
 

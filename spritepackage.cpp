@@ -22,7 +22,6 @@ bool SpritePackage::save(QString filename)
     file << image.width() << ' ' << image.height() << endl;
 
     // Image : bits
-    unsigned char bits[width*height*4];
     QImage tmp_img = image.toImage();
 
     for(int j=0; j<height; ++j)

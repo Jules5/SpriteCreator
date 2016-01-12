@@ -58,6 +58,9 @@ void AnimationParameters::setAnimation(Animation* a)
 
 void AnimationParameters::updateAnimation()
 {
+    if(animation == NULL)
+        return;
+
     animation->name = name->text();
     animation->speed = speed->value();
     animation->repeated = is_repeated->isChecked();

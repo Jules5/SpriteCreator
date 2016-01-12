@@ -54,7 +54,12 @@ private:
     void initLayouts();
     void initWidgets();
 
+    void setModeInit();
+    void setModeEdition();
+
     void updateAll();
+
+    int askToSave();
 
 signals:
 
@@ -62,7 +67,6 @@ public slots:
     bool newPackage();
     void loadPackage();
     void loadSpriteSheet();
-    void setModeEdition();
     bool save();
     bool saveAs();
     void addAnimation();

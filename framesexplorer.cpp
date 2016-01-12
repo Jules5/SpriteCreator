@@ -30,13 +30,15 @@ void FramesExplorer::reset()
 {
     if(count() > 0)
         clear();
+    update();
 }
 
 
 
 void FramesExplorer::update()
 {
-    clear();
+    if(count() > 0)
+        clear();
 
     if(frames != NULL && image != NULL)
         for(vector<Frame>::iterator it=frames->begin(); it!=frames->end(); ++it)

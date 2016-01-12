@@ -28,7 +28,8 @@ FramePicker::FramePicker(QPixmap* img, QWidget *parent) : QGraphicsView(parent)
 
 void FramePicker::reset()
 {
-    scene->clear();
+    scene = new QGraphicsScene(this);
+    setScene(scene);
     setEnabled(false);
     update();
 }
@@ -247,6 +248,9 @@ void FramePicker::mousePressEvent(QMouseEvent *event)
 
 void FramePicker::mouseMoveEvent(QMouseEvent *event)
 {
+    if(!enabled)
+        return;
+
     int rx = event->pos().x()+horizontalScrollBar()->value();
     int ry = event->pos().y()+verticalScrollBar()->value();
 
@@ -297,6 +301,9 @@ void FramePicker::mouseMoveEvent(QMouseEvent *event)
 
 void FramePicker::mouseReleaseEvent(QMouseEvent *event)
 {
+    if(!enabled)
+        return;
+
     if(event->button() == Qt::LeftButton)
     {
         if(is_selecting)
@@ -318,6 +325,9 @@ void FramePicker::mouseReleaseEvent(QMouseEvent *event)
 
 void FramePicker::keyPressEvent(QKeyEvent *event)
 {
+    if(!enabled)
+        return;
+
     if(event->key() == Qt::Key_D && event->modifiers() == Qt::ControlModifier) // Ctrl+D
         duplicateFrame();
 
