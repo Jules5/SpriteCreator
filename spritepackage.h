@@ -23,6 +23,8 @@ public:
 
     bool save(QString filename);
     bool load(QString filename);
+    void skip_line(istream& is);
+
     void reset();
 
 };

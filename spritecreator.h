@@ -59,11 +59,12 @@ private:
 signals:
 
 public slots:
-    void newPackage();
+    bool newPackage();
     void loadPackage();
     void loadSpriteSheet();
-    void save();
-    void saveAs();
+    void setModeEdition();
+    bool save();
+    bool saveAs();
     void addAnimation();
     void duplicateFrame();
     void animationUpdated();

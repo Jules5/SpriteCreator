@@ -159,7 +159,9 @@ void SpriteCreator::updateAll()
     anim_explorer->update();
 
     Animation* old_current = current_anim;
-    current_anim = &package.animations.at(anim_explorer->getSelectedIndex());
+    int current_index = anim_explorer->getSelectedIndex();
+    if(current_index != -1)
+        current_anim = &package.animations.at(current_index);
 
     if(current_anim != old_current)
     {
@@ -175,7 +177,7 @@ void SpriteCreator::updateAll()
 
 
 
-void SpriteCreator::newPackage()
+bool SpriteCreator::newPackage()
 {
     int rep = QMessageBox::question(this, tr("New package"), tr("Do you want to save your work before create a new package ?")
                                     ,QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
@@ -183,11 +185,11 @@ void SpriteCreator::newPackage()
     switch(rep)
     {
         case QMessageBox::Yes :
-                save();
+            save();
             break;
 
         case QMessageBox::Cancel :
-            return;
+            return false;
     }
 
     frames_picker->reset();
@@ -205,12 +207,17 @@ void SpriteCreator::newPackage()
     anim_param->setEnabled(false);
     anim_player->setEnabled(false);
     frames_explorer->setEnabled(false);
+
+    return true;
 }
 
 
 
 void SpriteCreator::loadPackage()
 {
+    if((package.animations.size()>0 || !package.image.isNull()) && !newPackage())
+        return;
+
     QString old_filename = filename;
     filename = QFileDialog::getOpenFileName(this, tr("Open Package"), "", tr("Sprite Package (*.spr)"));
     if(filename.size() <= 0)
@@ -220,7 +227,10 @@ void SpriteCreator::loadPackage()
     }
 
     if(package.load(filename))
-        update();
+    {
+        setModeEdition();
+        frames_picker->update();
+    }
 }
 
 
@@ -234,6 +244,14 @@ void SpriteCreator::loadSpriteSheet()
 
     package.image = QPixmap::fromImage(QImage(image_file));
 
+    // Toggle edition mode
+    setModeEdition();
+}
+
+
+
+void SpriteCreator::setModeEdition()
+{
     // On active les widgets désactivés
     anim_explorer->setEnabled(true);
     add_anim_button->setEnabled(true);
@@ -245,30 +263,39 @@ void SpriteCreator::loadSpriteSheet()
     action_save->setEnabled(true);
     action_save_as->setEnabled(true);
 
-    // Ajout animation vide + Mise à jour
-    addAnimation();
+    // Si pas d'animation, on en crée une
+    if(package.animations.size() <= 0)
+        addAnimation();
+
+    // Mise à jour
+    updateAll();
 }
 
 
 
-void SpriteCreator::save()
+bool SpriteCreator::save()
 {
     if(filename == "")
         return saveAs();
 
     if(!package.save(filename))
+    {
         QMessageBox::information(this,tr("Error"),tr("Impossible to write in the specified file."),QMessageBox::Ok);
+        return false;
+    }
+
+    return true;
 }
 
 
-void SpriteCreator::saveAs()
+bool SpriteCreator::saveAs()
 {
     filename = QFileDialog::getSaveFileName(this, tr("Save Package"), "", tr("Sprite Package (*.spr)"));
 
     if(filename.size() <= 0)
-        return;
+        return false;
 
-    save();
+    return save();
 }
 
 

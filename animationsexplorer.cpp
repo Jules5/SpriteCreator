@@ -21,19 +21,6 @@ void AnimationsExplorer::reset()
 
 void AnimationsExplorer::update()
 {
-//    int cpt = count();
-
-//    clear();
-
-//    for(vector<Animation>::iterator it=animations->begin(); it!=animations->end(); ++it)
-//        addItem(new QListWidgetItem(it->name));
-
-//    // Gestion selection
-//    if(cpt < count())
-//            item(count()-1)->setSelected(true);
-//    else if(selectedItems().count() <= 0 && count() > 0)
-//        item(0)->setSelected(true);
-
     if(selectedItems().count() <= 0 && count() > 0)
         item(0)->setSelected(true);
 
@@ -59,7 +46,7 @@ void AnimationsExplorer::updateSelectedItem()
 int AnimationsExplorer::getSelectedIndex()
 {
     if(count() <= 0)
-        return 0;
+        return -1;
 
     QListWidgetItem* item = selectedItems().first();
     return indexFromItem(item).row();

@@ -16,15 +16,27 @@ bool SpritePackage::save(QString filename)
         return false;
     }
 
-//    QImage tmp_img = image.toImage();
-//    const uchar* bits = tmp_img.constBits();
-//    file << tmp_img.byteCount() << "\n";
-//    file.write((char *)&bits[0],tmp_img.byteCount());
+    // En-tête : width height
+    int width = image.width();
+    int height = image.height();
+    file << image.width() << ' ' << image.height() << endl;
 
-    image = QPixmap::fromImage(QImage("braid.png"));
+    // Image : bits
+    unsigned char bits[width*height*4];
+    QImage tmp_img = image.toImage();
 
-    file << animations.size() << "\n";
+    for(int j=0; j<height; ++j)
+        for(int i=0; i<width; ++i)
+        {
+            QColor pixel = QColor::fromRgba(tmp_img.pixel(i,j));
+            file.put((unsigned char)pixel.red());
+            file.put((unsigned char)pixel.green());
+            file.put((unsigned char)pixel.blue());
+            file.put((unsigned char)pixel.alpha());
+        }
 
+    // Animations
+    file << animations.size() << ' ';
     for(vector<Animation>::iterator it=animations.begin(); it!=animations.end(); ++it)
         file << *it;
 
@@ -38,6 +50,7 @@ bool SpritePackage::save(QString filename)
 bool SpritePackage::load(QString filename)
 {
     ifstream file(filename.toStdString().c_str(), ios::in | ios::binary);
+    file.seekg(0, ios_base::beg);
 
     if(!file)
     {
@@ -45,12 +58,25 @@ bool SpritePackage::load(QString filename)
         return false;
     }
 
-    int nb_bytes;
-    file >> nb_bytes;
-    char bits[nb_bytes];
-    file.read(bits,nb_bytes);
-    image.loadFromData((uchar *)&bits[0],nb_bytes);
+    // En-tête : width height
+    int width, height;
+    file >> width >> height;
+    file.get();
 
+    // Image : bits
+    QImage tmp_img(width,height,QImage::Format_ARGB32);
+
+    for(int j=0; j<height; ++j)
+        for(int i=0; i<width; ++i)
+        {
+            unsigned char r,g,b,a;
+            r = file.get(); g = file.get(); b = file.get(); a = file.get();
+            tmp_img.setPixel(i,j,QColor(r,g,b,a).rgba());
+        }
+
+    image = QPixmap::fromImage(tmp_img);
+
+    // Animations
     animations.clear();
 
     unsigned int nb_anims;
@@ -62,6 +88,16 @@ bool SpritePackage::load(QString filename)
     file.close();
     cout << "Lecture du fichier terminée." << endl;
     return true;
+}
+
+
+
+void SpritePackage::skip_line(istream& is) // On saute une ligne dans le fichier
+{
+    char c;
+     do
+        is.get(c);      // Lire un caractère
+    while(c!='\n'); // tant qu'on n'atteint pas la fin de ligne.
 }
 
 

@@ -65,7 +65,7 @@ Frame::Frame(ifstream& file)
 
 ostream& operator << (ostream& os, Frame& f)
 {
-    os << f.x << " " << f.y << " " << f.w << " " << f.h << " " << f.getHotX() << " " << f.getHotY() << "\n";
+    os << f.x << ' ' << f.y << ' ' << f.w << ' ' << f.h << ' ' << f.getHotX() << ' ' << f.getHotY() << ' ';
 
     return os;
 }

@@ -34,7 +34,7 @@ Animation::Animation(ifstream& file)
 
 ostream& operator << (ostream& os, Animation& anim)
 {
-    os << anim.name.size() << " " << anim.name.toStdString().c_str() << " " << anim.speed << " " << anim.repeated << " " << anim.frames.size() << "\n";
+    os << anim.name.size() << ' ' << anim.name.toStdString().c_str() << ' ' << anim.speed << ' ' << anim.repeated << ' ' << anim.frames.size() << ' ';
 
     for(vector<Frame>::iterator it=anim.frames.begin(); it!=anim.frames.end(); ++it)
         os << *it;

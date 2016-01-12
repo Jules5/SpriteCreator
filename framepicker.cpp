@@ -47,6 +47,10 @@ void FramePicker::update()
     button_load->hide();
     scene->addPixmap(*image);
 
+//    QImage tmp_img = image->toImage();
+//    const uchar* bits = tmp_img.constBits();
+//    cout << (int)tmp_img.byteCount() << endl;
+
     if(frames != NULL)
     {
         for(vector<Frame>::iterator it=frames->begin(); it!=frames->end(); ++it)
@@ -63,6 +67,7 @@ void FramePicker::update()
 void FramePicker::setEnabled(bool b)
 {
     enabled = b;
+    update();
 }
 
 
@@ -213,6 +218,9 @@ bool FramePicker::checkClickCollision(int rx, int ry, Frame* frame)
 
 void FramePicker::mousePressEvent(QMouseEvent *event)
 {
+    if(!enabled)
+        return;
+
     int rx = event->pos().x()+horizontalScrollBar()->value();
     int ry = event->pos().y()+verticalScrollBar()->value();
 
